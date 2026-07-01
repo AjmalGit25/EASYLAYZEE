@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+
+  font-family: "Montserrat", sans-serif;
+}
+
+/* "Montserrat", "Manrope", "Roboto","Outfit", "Poppins", "Inter", "Verdana", "Rockwell", "Georgia", "Impact", sans-serif */
+
+.background {
+  transition: --color1 0.5s ease, --color2 0.5s ease;
+  background: repeating-radial-gradient(circle at center,
+      var(--color1) 0px 90px,
+      var(--color2) 90px 180px);
+}
+
+@property --color1 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #ff4d4d;
+}
+
+@property --color2 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #b30000;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-input {
+  width: 0;
+  padding: 5px 0;
+  border: none;
+  outline: none;
+
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.search-input.active {
+  width: 220px;
+  padding: 5px;
+  opacity: 1;
+
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.search-icon {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Scrollbar Styling */
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.product-slider::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  border-radius: 999px;
+}
+
+.product-slider::-webkit-scrollbar-thumb:hover {
+  background: #cccccc;
+}
+
+/* Hide scrollbar on desktop image slider */
+.desktop-slider {
+  scrollbar-width: none;
+}
+
+.desktop-slider::-webkit-scrollbar {
+  display: none;
+}

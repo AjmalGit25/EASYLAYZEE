@@ -1,0 +1,71 @@
+import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
+import mongoose, { Mongoose } from "mongoose";
+import { v2 as cloudinary } from 'cloudinary';
+import fileUpload from "express-fileupload";
+import cookieParser from "cookie-parser";
+import multer from "multer";
+
+import productRoute from "./routes/product.route.js";
+import userRoute from "./routes/user.route.js";
+import adminRoute from "./routes/admin.route.js";
+import cartRoute from "./routes/cart.route.js";
+
+import cors from "cors";
+
+const PORT = process.env.PORT;
+const FRONTEND_URL = process.env.FRONTEND_URL;
+const DB_URI = process.env.MONGO_URI;
+
+const app = express();
+
+// Enable CORS for the configured frontend origin and allow credentials (cookies)
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+}));
+
+app.use(cookieParser());      // Middleware to parse cookies
+app.use(express.json());      // Middleware to parse JSON bodies
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
+
+
+app.use(fileUpload({
+  useTempFiles: true,
+  tempFileDir: '/tmp/'
+}));
+
+// Connect Database (MongoDB Atlas)
+try {
+  await mongoose.connect(DB_URI);
+  console.log("Connected to MongoDB");
+} catch (error) {
+  console.log("Error connecting to MongoDB:", error);
+}
+
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+
+// Base route
+app.use("/api/v1/user", userRoute);
+app.use("/api/v1/admin", adminRoute);
+app.use("/api/v1/product", productRoute);
+app.use("/api/v1/cart", cartRoute);
+
+// Setup Server
+app.get("/", (req, res) => {
+  res.send("Hello, World! Welcome to Ajmal's Express Server!");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
