@@ -2,7 +2,6 @@ import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
-import JWT_USER_PASSWORD from "../config.js";
 import config from "../config.js";
 import userMiddleware from "../middlewares/user.mid.js";
 import { Purchase } from "../models/purchase.model.js";
@@ -146,7 +145,7 @@ export const getMe = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-    if (!req.cookies.jwt) {           // req.headers.authorization (for token in header) can also be used instead of cookies.
+    if (!req.cookies.jwt) {           
       return res.status(401).json({ message: "User! Kindly login first!" });
     }
 

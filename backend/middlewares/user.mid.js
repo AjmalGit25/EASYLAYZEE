@@ -2,8 +2,6 @@ import jwt from "jsonwebtoken";
 import config from "../config.js";
 
 function userMiddleware(req, res, next) {
-  console.log("Headers Cookie:", req.headers.cookie);
-  console.log("Cookies:", req.cookies);
 
   const token = req.cookies.jwt;
 
