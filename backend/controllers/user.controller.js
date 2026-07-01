@@ -105,11 +105,13 @@ export const login = async (req, res) => {
       { expiresIn: "6h" }
     );
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     // Set the token in a cookie named jwt
     res.cookie("jwt", token, { 
       httpOnly: true, 
-      secure: false, 
-      sameSite: "lax", 
+      secure: isProduction, 
+      sameSite: isProduction ? "none" : "lax", 
       maxAge: 6 * 60 * 60 * 1000,
       path: "/" 
     });
