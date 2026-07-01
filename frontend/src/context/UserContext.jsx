@@ -39,7 +39,7 @@ export const UserProvider = ({ children }) => {
       await api.post("/user/logout", {});
 
       localStorage.removeItem("guestCart");
-      toast.error("Logout successfully");
+      toast.success("Logout successfully");
       setUser(null);
     } catch (error) {
       toast.error("Error during logout!");
@@ -78,7 +78,7 @@ export const UserAuthProvider = ({ children }) => {
       await api.post("/user/logout", {});
 
       localStorage.removeItem("guestCart");
-      toast.error("Logout successfully");
+      toast.success("Logout successfully");
       setUser(null);
     } catch (error) {
       console.log("Error during logout!", error);

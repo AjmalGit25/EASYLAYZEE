@@ -8,46 +8,17 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { Pagination } from "swiper/modules";
 import "swiper/css/pagination";
+import { useUserAuth } from "../../context/UserContext.jsx";
+import { Link } from "react-router-dom";
 
 
 export default function Products() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [cartLoading, setCartLoading] = useState(null);
-  const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem("guestCart")) || []);
-  const [search, setSearch] = useState("");
-  const [error, setError] = useState("");
   const [products, setProducts] = useState([]);
-
-
-  // Fetch current user + their cart (page is public, not behind UserRoute)
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userRes = await api.get("/user/me");
-
-        setUser(userRes.data.user);
-      } catch {
-        setUser(null);
-        return;
-      }
-
-      try {
-        const cartRes = await api.get("/cart",
-          { withCredentials: true }
-        );
-
-        setCart(cartRes.data.cartData.items);
-      } catch {
-        // No cart yet — stays as empty array, user is still logged in
-      }
-    };
-
-    fetchData();
-  }, []);
-
-
-  // cart is the single source of truth | Guest → load/save localStorage | Logged in → load/save MongoDB
+  const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem("guestCart")) || []);
+  const [cartLoading, setCartLoading] = useState(null);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   // Fetch all products
   useEffect(() => {
@@ -72,6 +43,22 @@ export default function Products() {
     p.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Fetch Mongo Cart | default Cart is "guestCart" in local storage
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const cartRes = await api.get("/cart");
+
+        setCart(cartRes.data.cartData.items);
+      } catch {
+        // No cart yet — stays as empty array, user is still logged in
+      }
+    }
+
+    fetchCart();
+  }, []);
+
+  // Helper function to get Quantity
   const getQty = (productId) => {
     const item = cart.find((item) =>
       (item.productId?._id || item.productId)?.toString() === productId
@@ -79,6 +66,9 @@ export default function Products() {
 
     return item?.quantity || 0;
   };
+
+  // Fetch current user cart
+  const { user } = useUserAuth();
 
   const cartHandler = async (product, newQty) => {
     if (user) {
@@ -93,26 +83,15 @@ export default function Products() {
         let response;
 
         if (newQty == 0) {                                 // delete cart
-          response = await api.delete(
-            `cart/${product._id}`,
-            { withCredentials: true }
-          );
+          response = await api.delete(`cart/${product._id}`);
         }
 
         else if (existingItem) {                           // update cart
-          response = await api.patch(
-            `cart/${product._id}`,
-            { quantity: newQty },
-            { withCredentials: true }
-          );
+          response = await api.patch(`cart/${product._id}`, { quantity: newQty });
         }
 
         else {                                             // add new cart
-          response = await api.post(
-            `cart/${product._id}`,
-            { quantity: newQty },
-            { withCredentials: true }
-          );
+          response = await api.post(`cart/${product._id}`, { quantity: newQty });
         }
 
         setCart(response.data.cartData.items);
@@ -149,6 +128,7 @@ export default function Products() {
         item.productId === product._id ? { ...item, quantity: newQty } : item
       );
     }
+
     else {
 
       // add new cart
@@ -253,14 +233,14 @@ export default function Products() {
 
                 {/* Info */}
                 <div className="p-3 flex flex-col gap-1 flex-1">
-                  <div className="cursor-pointer">
+                  <Link to={`/products/${product._id}`} className="cursor-pointer">
                     <h3 className="text-xs sm:text-sm font-bold text-gray-800 line-clamp-1">
                       {product.title}
                     </h3>
                     <p className="text-[10px] sm:text-xs text-gray-400 line-clamp-2 leading-relaxed">
                       {product.description}
                     </p>
-                  </div>
+                  </Link>
                   <div className="mt-auto pt-2">
                     <span className="text-sm sm:text-base font-extrabold text-amber-800">
                       ₹{product.price}
