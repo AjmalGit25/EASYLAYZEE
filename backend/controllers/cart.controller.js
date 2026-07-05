@@ -1,8 +1,5 @@
 import { User } from "../models/user.model.js";
-import bcrypt from "bcryptjs";
-import { z } from "zod";
 import jwt from "jsonwebtoken";
-import JWT_USER_PASSWORD from "../config.js";
 import config from "../config.js";
 import userMiddleware from "../middlewares/user.mid.js";
 import { Purchase } from "../models/purchase.model.js";
@@ -21,7 +18,6 @@ export const getCart = async (req, res) => {
       return res.status(404).json({ message: "Cart not found!" });
     }
 
-    console.log("Cart data fetched successfully!", cartData);
     return res.status(200).json({ message: "Carts data fetched succesffully!", cartData });
 
   } catch (error) {
@@ -52,7 +48,7 @@ export const addCart = async (req, res) => {
       return res.status(400).json({ message: "Quantity must be at least 1" });
     }
 
-    // 3. Find the single cart document for this user
+    // 3. Find the Cart document for this user
     const cart = await Cart.findOne({ userId });
 
     // 4. Create if no cart (Entire cart data is empty)
@@ -67,12 +63,20 @@ export const addCart = async (req, res) => {
       (item) => item.productId.toString() === productId
     );
 
+
+    // UPSERT behavior = UPDATE if exists + INSERT if not exists =====================================
+
     if (existingItem) {
-      return res.status(400).json({ message: "Product already in cart!" });
+      // Choose your desired behavior
+      existingItem.quantity += quantity;   // 👈 My recommendation
+      // OR
+      // existingItem.quantity = quantity;  // Replace quantity instead
     }
 
-    // 5. New item (Cart exist, but this product is new to cart)
-    cart.items.push({ productId, quantity });
+    else {
+      // 5. New item (Cart exist, but this product is new to cart)
+      cart.items.push({ productId, quantity });
+    }
 
     await cart.save();
 

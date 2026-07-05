@@ -8,15 +8,20 @@ import { FiShoppingCart } from "react-icons/fi";
 import toast from "react-hot-toast";
 
 export default function Cart() {
-  const [cart, setCart] = useState([]);
-  const [cartLoading, setCartLoading] = useState(null); // productId being updated
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);         // Page load
 
+  const [cart, setCart] = useState([]);
+  const [cartLoading, setCartLoading] = useState(null);
+  const [wishlist, setWishlist] = useState({ products: [] });
+  const [wishlistLoading, setWishlistLoading] = useState(null);
+
+  // Fetch all cart items
   const fetchCart = async () => {
     try {
       const cartRes = await api.get("/cart");
-
       setCart(cartRes.data.cartData.items || []);
+
+      console.log("Cart items:", cartRes.data.cartData.items);
     } catch (error) {
       console.error("Error fetching cart:", error);
       setCart([]);
@@ -75,6 +80,20 @@ export default function Cart() {
     return;
   }
 
+  const wishlistHandler = async (productId) => {
+    const id = productId?.toString();
+    try {
+      setWishlistLoading(id);
+      const res = await api.post(`/wishlist/${id}`);
+      setWishlist(res.data.wishlist);
+      toast.success(res.data.message);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to add in Wishlist");
+    } finally {
+      setWishlistLoading(null);
+    }
+  }
+
   const subtotal = cart.reduce((sum, item) => sum + (item.productId?.price ?? 0) * item.quantity, 0);
 
   return (
@@ -107,59 +126,78 @@ export default function Cart() {
 
             {/* Cart Items */}
             <div className="flex flex-col gap-4 lg:w-[68%]">
-              {cart.map((product) => (
-                <div
-                  key={product._id ?? product.productId?._id ?? product.productId}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 sm:p-4 flex gap-4 hover:shadow-md transition-shadow duration-200"
-                >
-                  {/* Image */}
-                  <div className="shrink-0 w-20 h-20 sm:w-28 sm:h-28 rounded-xl bg-indigo-50 flex items-center justify-center overflow-hidden">
-                    <img
-                      src={product.productId?.images?.[0]?.url}
-                      alt={product.productId?.title}
-                      className="w-full h-full object-contain p-1"
-                    />
-                  </div>
+              {cart.map((cartItem, index) => {
+                const wishlistIds = (wishlist.products ?? []).map(cartItem => cartItem._id);
+                const isWishlisted = wishlistIds.includes(cartItem.productId._id);
 
-                  {/* Details */}
-                  <div className="flex flex-col flex-1 justify-between min-w-0">
-                    <div>
-                      <h3 className="font-bold text-gray-800 text-sm sm:text-base line-clamp-1">{product.productId?.title}</h3>
-                      <p className="text-xs sm:text-sm text-gray-400 line-clamp-1 mt-0.5">{product.productId?.description}</p>
-                    </div>
-                    <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
-                      <span className="text-base sm:text-lg font-extrabold text-indigo-600">₹{(product.productId?.price * product.quantity).toLocaleString("en-IN")}</span>
-                      <span className="text-xs text-gray-400">₹{product.productId?.price} × {product.quantity}</span>
-                    </div>
-                    {/* Actions row */}
-                    <div className="flex items-center gap-3 mt-2 flex-wrap">
-                      {/* Qty stepper */}
-                      <div className="flex items-center rounded-lg overflow-hidden border border-gray-200 h-8">
-                        <button
-                          onClick={() => cartHandler(product, Math.max(product.quantity - 1, 0))}
-                          className="w-8 h-full bg-gray-100 hover:bg-indigo-100 text-gray-700 font-bold text-base flex items-center justify-center transition-colors cursor-pointer"
-                        >−</button>
-                        <span className="w-8 h-full flex items-center justify-center text-sm font-semibold text-gray-700 bg-white">{cartLoading === (product.productId?._id ?? product.productId) ? (<div className="h-5 w-5 border-2 border-amber-600 border-b-transparent rounded-full animate-spin"></div>) : (product.quantity)}</span>
-                        <button
-                          onClick={() => cartHandler(product, product.quantity + 1)}
-                          className="w-8 h-full bg-gray-100 hover:bg-indigo-100 text-gray-700 font-bold text-base flex items-center justify-center transition-colors cursor-pointer"
-                        >+</button>
+                return (
+                  <div
+                    key={index}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 sm:p-4 flex gap-4 hover:shadow-md transition-shadow duration-200"
+                  >
+                    {/* Image */}
+                    <Link
+                      to={`/products/${cartItem.productId._id}`}
+                      className="shrink-0 w-20 h-20 sm:w-28 sm:h-28 rounded-xl bg-indigo-50 flex items-center justify-center overflow-hidden"
+                    >
+                      <img
+                        src={cartItem.productId?.images?.[0]?.url}
+                        alt={cartItem.productId?.title}
+                        className="w-full h-full object-contain p-1"
+                      />
+                    </Link>
+
+                    {/* Details */}
+                    <div className="flex flex-col flex-1 justify-between min-w-0">
+                      <div>
+                        <h3 className="font-bold text-gray-800 text-sm sm:text-base line-clamp-1">{cartItem.productId?.title}</h3>
+                        <p className="text-xs sm:text-sm text-gray-400 line-clamp-1 mt-0.5">{cartItem.productId?.description}</p>
                       </div>
+                      <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
+                        <span className="text-base sm:text-lg font-extrabold text-indigo-600">₹{(cartItem.productId?.price * cartItem.quantity).toLocaleString("en-IN")}</span>
+                        <span className="text-xs text-gray-400">₹{cartItem.productId?.price} × {cartItem.quantity}</span>
+                      </div>
+                      {/* Actions row */}
+                      <div className="flex items-center gap-3 mt-2 flex-wrap">
+                        {/* Qty stepper */}
+                        <div className="flex items-center rounded-lg overflow-hidden border border-gray-200 h-8">
+                          <button
+                            onClick={() => cartHandler(cartItem, Math.max(cartItem.quantity - 1, 0))}
+                            className="w-8 h-full bg-gray-100 hover:bg-indigo-100 text-gray-700 font-bold text-base flex items-center justify-center transition-colors cursor-pointer"
+                          >−</button>
+                          <span className="w-8 h-full flex items-center justify-center text-sm font-semibold text-gray-700 bg-white">{cartLoading === (cartItem.productId?._id ?? cartItem.productId) ? (<div className="h-5 w-5 border-2 border-amber-600 border-b-transparent rounded-full animate-spin"></div>) : (cartItem.quantity)}</span>
+                          <button
+                            onClick={() => cartHandler(cartItem, cartItem.quantity + 1)}
+                            className="w-8 h-full bg-gray-100 hover:bg-indigo-100 text-gray-700 font-bold text-base flex items-center justify-center transition-colors cursor-pointer"
+                          >+</button>
+                        </div>
 
-                      <button
-                        onClick={() => cartHandler(product, 0)}
-                        className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 font-medium transition-colors cursor-pointer"
-                      >
-                        <RiDeleteBin5Fill /> Delete
-                      </button>
-                      {/* Wishlist */}
-                      <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-pink-500 font-medium transition-colors cursor-pointer">
-                        <GoHeartFill /> Wishlist
-                      </button>
+                        <button
+                          onClick={() => cartHandler(cartItem, 0)}
+                          className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 font-medium transition-colors cursor-pointer"
+                        >
+                          <RiDeleteBin5Fill /> Delete
+                        </button>
+
+                        {/* Wishlist */}
+                        <button
+                          onClick={() => wishlistHandler(cartItem.productId._id)}
+                          className={`flex items-center gap-1 text-xs font-medium transition-colors cursor-pointer
+                            ${isWishlisted ? "text-pink-500" : "text-gray-400 hover:text-pink-400"}`}
+                        >
+                          {wishlistLoading === cartItem.productId._id?.toString() ? (
+                            <div className="h-4 w-4 border-2 border-pink-500 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <GoHeartFill size={12} /> <span>Wishlist</span>
+                            </div>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
             {/* Summary Panel */}

@@ -35,9 +35,19 @@ export default function Home() {
     fetchProducts();
   }, []);
 
+  console.log("Lenght: ", products.length);
+
   if (!currentProduct) return (
     <div className="min-h-screen relative background overflow-hidden px-5 md:pt-20">
-      <div className="min-h-screen flex items-center justify-center text-white text-lg font-medium">
+      <div className="min-h-screen flex items-center justify-center text-white text-xs md:text-lg font-medium">
+        Loading ...
+      </div>
+    </div>
+  );
+
+  if (products.length === 0) return (
+    <div className="min-h-screen relative background overflow-hidden px-5 md:pt-20">
+      <div className="min-h-screen flex items-center justify-center text-white text-xs md:text-lg font-medium">
         No products found.
       </div>
     </div>
@@ -45,7 +55,7 @@ export default function Home() {
 
   return (
     <div
-      className="min-h-screen relative background overflow-hidden px-5 md:pt-20"
+      className="min-h-screen relative background overflow-hidden px-5 md:pt-25"
       style={{
         "--color1": currentProduct.colors.primary,
         "--color2": currentProduct.colors.secondary,
@@ -110,8 +120,8 @@ export default function Home() {
             </div>
 
             {/* Middle - Product Image Preview */}
-            <div className="">
-              <Link to={`/products/${currentProduct._id}`} className="flex items-center ml-15">
+            <div className="flex items-center ml-15">
+              <Link to={`/products/${currentProduct._id}`}>
                 <img
                   src={currentProduct.images[0].url}
                   alt={currentProduct.title}

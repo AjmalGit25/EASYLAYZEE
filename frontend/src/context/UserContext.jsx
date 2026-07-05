@@ -8,18 +8,24 @@ const UserContext = createContext();
 const syncGuestCart = async () => {
   const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
   if (guestCart.length === 0) return;
+
   try {
-    await Promise.all(
-      guestCart.map(({ productId, quantity }) =>
-        api.patch(`/cart/${productId}`, { quantity })
-      )
-    );
-    
+
+    for (const { productId, quantity } of guestCart) {
+      await api.post(`/cart/${productId}`, { quantity });
+    }
+
     localStorage.removeItem("guestCart");
     toast.success("Guest cart synced successfully!");
   } catch (err) {
     console.error("Guest cart sync failed:", err);
     toast.error("Guest cart not synced!");
+
+    console.error("Guest cart sync failed:", err);
+    console.log(err.response?.status);
+    console.log(err.response?.data);
+    console.log(err.config?.url);
+
   }
 };
 

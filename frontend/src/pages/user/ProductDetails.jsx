@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import api from "../../services/api";
+import { FaCaretLeft, FaCaretRight } from "react-icons/fa";
 
 
 export default function ProductDetails() {
-  const { id } = useParams();
+  const { id } = useParams();               // Take id from the URL params
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -17,7 +18,7 @@ export default function ProductDetails() {
         const response = await api.get(`/product/${id}`);
 
         const fetched = response.data.product;
-
+        console.log("Product response = ", fetched);
         setProduct(fetched);
 
       } catch (error) {
@@ -75,7 +76,7 @@ export default function ProductDetails() {
               {/* Image Preview */}
               <div className="w-full aspect-2/4 p-2 relative">
                 <img
-                  src={product.images[selectedImage]?.url}
+                  src={product?.images?.[selectedImage]?.url}
                   key={selectedImage}
                   className="h-full w-full object-contain drop-shadow-lg"
                 />
@@ -84,22 +85,19 @@ export default function ProductDetails() {
                 <button
                   onClick={previousImage}
                   className="absolute left-2 top-1/2 -translate-y-1/2 bg-gray-300 hover:bg-gray-200 text-black p-2 rounded-full cursor-pointer"
-                >←</button>
+                >
+                  <FaCaretLeft />
+                </button>
 
                 {/* Right button */}
                 <button
                   onClick={nextImage}
                   className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-300 hover:bg-gray-200 text-black p-2 rounded-full cursor-pointer"
-                >→</button>
+                >
+                  <FaCaretRight />
+                </button>
               </div>
             </div >
-
-            {/* Details area (very limited) */}
-            {/* <div>
-              <p className="font-medium">{product.title}</p>
-              <p className="font-extrabold">{product.price}</p>
-              <p className="font-medium">{product.description}</p>
-            </div> */}
 
             {/* Details Area */}
             <div className="flex flex-col gap-5 bg-white rounded-2xl shadow-md p-6">
@@ -205,26 +203,20 @@ export default function ProductDetails() {
                   Add to Cart
                 </button>
 
-                <button
-                  className="bg-orange-500 hover:bg-orange-600 transition text-white font-semibold py-3 rounded-xl shadow cursor-pointer"
+                <Link
+                  to="/checkout"
+                  className="bg-orange-500 hover:bg-orange-600 transition text-white font-semibold py-3 rounded-xl shadow text-center"
                 >
                   Buy Now
-                </button>
+                </Link>
 
               </div>
-
-              {/* Wishlist */}
-              <button
-                className="border rounded-xl py-3 hover:bg-gray-50 transition font-medium cursor-pointer"
-              >
-                🤍 Add to Wishlist
-              </button>
 
               {/* Description */}
               <div>
 
                 <h2 className="font-bold text-lg mb-2">
-                  Description
+                  About this item
                 </h2>
 
                 <p className="text-gray-600 leading-7">

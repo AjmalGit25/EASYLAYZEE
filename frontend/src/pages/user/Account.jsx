@@ -44,6 +44,7 @@ function Account() {
                   {/* Account Summary */}
                   <div className="border border-gray-300 rounded-2xl p-4">
                     <div className="space-y-3 text-sm text-slate-700">
+                      <h1 className="text-green-600 font-semibold">Account Summary</h1>
                       <p>
                         <span className="font-semibold text-slate-900">Name:</span> {user.firstName} {user.lastName}
                       </p>
