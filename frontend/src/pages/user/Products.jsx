@@ -3,14 +3,15 @@ import { GoHeartFill } from "react-icons/go";
 import { useState } from "react";
 import { useEffect } from "react";
 import { FiShoppingCart } from 'react-icons/fi';
+import { FaPlus, FaMinus } from "react-icons/fa6";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
+
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { Pagination } from "swiper/modules";
 import "swiper/css/pagination";
-import { Link } from "react-router-dom";
 
-import { FaPlus, FaMinus } from "react-icons/fa6";
 
 
 export default function Products() {
@@ -47,6 +48,20 @@ export default function Products() {
     p.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Fetch current user | (It is not protected route, so fetch manually, user is optional here)
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/user/me");
+        setUser(response.data.user);
+      } catch {
+        setUser(null);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   // Fetch Mongo Cart | default Cart is "guestCart" in local storage
   useEffect(() => {
     const fetchCart = async () => {
@@ -66,7 +81,6 @@ export default function Products() {
     const fetchWishlist = async () => {
       try {
         const wishlistRes = await api.get("/wishlist");
-        console.log("Wishlists: ", wishlistRes.data.wishlist);
         setWishlist(wishlistRes.data.wishlist);
       } catch (error) {
         console.log("Error during wishlist fetch:", error);
@@ -84,20 +98,6 @@ export default function Products() {
 
     return item?.quantity || 0;
   };
-
-  // Fetch current user | (It is not protected route, so fetch manually, user is optional here)
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await api.get("/user/me");
-        setUser(response.data.user);
-      } catch {
-        setUser(null);
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   const cartHandler = async (productId, newQty) => {
     if (user) {
