@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa";
 import { GoHeartFill } from "react-icons/go";
@@ -18,6 +18,7 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [wishlist, setWishlist] = useState({ products: [] });
   const [cartLoading, setCartLoading] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
   const [user, setUser] = useState(null);
 
   // Fetch the product for additional details
@@ -48,7 +49,6 @@ export default function ProductDetails() {
         const response = await api.get("/user/me");
         setUser(response.data.user);
       } catch {
-        toast.error("User please login");
         setUser(null);
       }
     };
@@ -60,6 +60,8 @@ export default function ProductDetails() {
   // Fetch Mongo Wishlist | default Wishlist is empty array
   useEffect(() => {
     const fetchWishlist = async () => {
+      if (!user) return;
+
       try {
         const wishlistRes = await api.get("/wishlist");
         setWishlist(wishlistRes.data.wishlist);
@@ -67,8 +69,9 @@ export default function ProductDetails() {
         console.log("Error during wishlist fetch:", error);
       }
     }
+
     fetchWishlist();
-  }, []);
+  }, [user]);
 
   // Left / Right buttons ------------------------------------------
   // Right Button
@@ -81,9 +84,12 @@ export default function ProductDetails() {
     setSelectedImage(prev => (prev - 1 + product.images.length) % product.images.length);
   };
 
+  const navigate = useNavigate();
 
   // Cart Handler
   const cartHandler = async (productId, quantity) => {
+    if (!user) navigate("/login");
+
     try {
       setCartLoading(true);
       const res = await api.post(`cart/${productId}`, { quantity });
@@ -100,12 +106,15 @@ export default function ProductDetails() {
   const wishlistHandler = async (productId) => {
     try {
       if (user) {
+        setWishlistLoading(true);
         const res = await api.post(`wishlist/${productId}`);
         setWishlist(res.data.wishlist);
         toast.success(res.data.message);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to add in Wishlist");
+    } finally {
+      setWishlistLoading(false);
     }
   }
 
@@ -154,12 +163,16 @@ export default function ProductDetails() {
 
                 {/* Wishlist heart */}
                 <div className="absolute right-3 top-5 -translate-y-1/2 cursor-pointer z-2">
-                  <GoHeartFill
-                    onClick={() => wishlistHandler(product._id)}
-                    size={25}
-                    className={`flex-1 flex items-center justify-center cursor-pointer 
+                  {wishlistLoading ? (
+                    <div className="h-5 w-5 border-3 border-pink-500 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <GoHeartFill
+                      onClick={() => wishlistHandler(product._id)}
+                      size={25}
+                      className={`cursor-pointer 
                           ${isWishlisted ? "text-pink-500" : "text-gray-400 "}`}
-                  />
+                    />
+                  )}
                 </div>
 
                 {/* Left button  */}
@@ -302,7 +315,7 @@ export default function ProductDetails() {
                   className={`transition text-white font-semibold py-3 rounded-xl shadow cursor-pointer
                     ${cartLoading ? "bg-indigo-500 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}
                 >
-                  {cartLoading ? "Adding to Cart..." : "Add to Cart"}
+                  <span>{cartLoading ? "Adding to Cart..." : "Add to Cart"}</span>
                 </button>
 
                 <Link

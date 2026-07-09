@@ -65,6 +65,8 @@ export default function Products() {
   // Fetch Mongo Cart | default Cart is "guestCart" in local storage
   useEffect(() => {
     const fetchCart = async () => {
+      if (!user) return;
+
       try {
         const cartRes = await api.get("/cart");
         setCart(cartRes.data.cartData.items);
@@ -74,11 +76,13 @@ export default function Products() {
     }
 
     fetchCart();
-  }, []);
+  }, [user]);
 
   // Fetch Mongo Wishlist | default Wishlist is empty array
   useEffect(() => {
     const fetchWishlist = async () => {
+      if (!user) return;
+
       try {
         const wishlistRes = await api.get("/wishlist");
         setWishlist(wishlistRes.data.wishlist);
@@ -87,7 +91,7 @@ export default function Products() {
       }
     }
     fetchWishlist();
-  }, []);
+  }, [user]);
 
 
   // Helper function to get Quantity
@@ -311,8 +315,8 @@ export default function Products() {
                           onClick={() => cartHandler(productId, 1)}
                           className="flex-3 flex items-center justify-center gap-2 text-[11px] sm:text-sm font-bold h-8 rounded-lg text-white bg-orange-700 hover:bg-orange-800 transition-all duration-200 cursor-pointer px-2"
                         >
-                          <FiShoppingCart className="text-sm" />
-                          <span>Add</span>
+                          <FiShoppingCart size={13} />
+                          <span>{cartLoading === productId ? "Adding..." : "Add"}</span>
                         </button>
                       ) : (
                         <div className="flex-3 text-[11px] sm:text-sm font-bold rounded-lg text-white overflow-hidden transition-all duration-200">
