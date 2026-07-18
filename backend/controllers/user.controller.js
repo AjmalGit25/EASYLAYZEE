@@ -149,8 +149,14 @@ export const logout = (req, res) => {
       return res.status(401).json({ message: "User! Kindly login first!" });
     }
 
-    // Clear the token cookie
-    res.clearCookie("jwt");
+    const isProduction = process.env.NODE_ENV === "production";
+
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      path: "/"
+    });
     return res.status(200).json({ message: "User logged out successfully!" });
   } catch (error) {
     console.log("Error in logout.", error);
@@ -163,9 +169,6 @@ export const purchasedProducts = async (req, res) => {
 
   try {
     const purchased = await Purchase.find({ userId });
-
-    // let productIds = purchased.map(purchase => purchase.productId);
-    // const products = await Product.find({ _id: { $in: productIds } });
 
     let purchasedProductIds = [];
     for (let i = 0; i < purchased.length; i++) {

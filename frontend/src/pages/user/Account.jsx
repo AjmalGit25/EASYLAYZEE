@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useUserAuth } from "../../context/UserContext.jsx";
 import { FiEdit2, FiHeart, FiPackage, FiMapPin, FiCreditCard, FiLogOut } from "react-icons/fi";
 
@@ -7,10 +7,8 @@ import { FiEdit2, FiHeart, FiPackage, FiMapPin, FiCreditCard, FiLogOut } from "r
 function Account() {
   const { user, loading, logoutUser } = useUserAuth();
 
-  const navigate = useNavigate();
   const handleLogout = async () => {
     await logoutUser();
-    navigate("/login");
   };
 
   return (
