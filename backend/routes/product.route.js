@@ -14,10 +14,10 @@ import adminMiddleware from "../middlewares/admin.mid.js";
 const router = express.Router();
 
 router.get("/", getProducts);
+router.get("/:productId", getProductDetails);
 router.post("/", adminMiddleware, createProduct);
 router.patch("/:productId", adminMiddleware, updateProduct);
 router.delete("/:productId", adminMiddleware, deleteProduct);
-router.get("/:productId", getProductDetails);
 router.post("/buy/:productId", userMiddleware, buyProduct);
 
 export default router;

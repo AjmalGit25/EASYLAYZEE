@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa";
 import { GoHeartFill } from "react-icons/go";
@@ -8,6 +8,7 @@ import "swiper/css";
 import { Pagination } from "swiper/modules";
 import "swiper/css/pagination";
 import toast from "react-hot-toast";
+import "../../App.css";
 
 
 export default function ProductDetails() {
@@ -21,7 +22,9 @@ export default function ProductDetails() {
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [user, setUser] = useState(null);
 
-  // Fetch the product for additional details
+  const navigate = useNavigate();
+
+  // Fetch the single product for additional details
   useEffect(() => {
     const fetchProduct = async (id) => {
 
@@ -84,7 +87,6 @@ export default function ProductDetails() {
     setSelectedImage(prev => (prev - 1 + product.images.length) % product.images.length);
   };
 
-  const navigate = useNavigate();
 
   // Cart Handler
   const cartHandler = async (productId, quantity) => {
@@ -94,7 +96,36 @@ export default function ProductDetails() {
       setCartLoading(true);
       const res = await api.post(`cart/${productId}`, { quantity });
 
-      toast.success(res.data.message);
+      // toast.success(res.data.message);
+      toast.custom((t) => (
+        <div
+          className={`${t.visible ? 'animate-custom-enter' : 'animate-custom-leave'
+            } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex`}
+        >
+          <div className="flex-1 w-0 p-1 px-2">
+            <div className="flex items-center">
+              <div className="shrink-0 pt-0.5">
+                <img
+                  className="h-10 w-8 object-cover"
+                  src={product.images[0]?.url}
+                  alt={product.title}
+                />
+              </div>
+              <p className="text-sm font-medium text-gray-900 pl-4">
+                <strong>{product.title}</strong> added to cart!
+              </p>
+            </div>
+          </div>
+          <div className="flex border-l border-gray-200">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      ));
     } catch (error) {
       console.log("Error while: ", error.message);
       toast.error(error.message);
@@ -120,6 +151,17 @@ export default function ProductDetails() {
 
   const wishlistIds = (wishlist.products ?? []).map(p => p._id.toString());
   const isWishlisted = product ? wishlistIds.includes(product._id?.toString()) : false;
+
+
+  const handleBuyNow = () => {
+    navigate("/checkout", {
+      state: {
+        mode: "single",
+        product,
+        quantity
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-blue-100">
@@ -318,12 +360,12 @@ export default function ProductDetails() {
                   <span>{cartLoading ? "Adding to Cart..." : "Add to Cart"}</span>
                 </button>
 
-                <Link
-                  to="/checkout"
-                  className="bg-orange-500 hover:bg-orange-600 transition text-white font-semibold py-3 rounded-xl shadow text-center"
+                <button
+                  onClick={handleBuyNow}
+                  className="bg-orange-500 hover:bg-orange-600 transition text-white font-semibold py-3 rounded-xl shadow text-center cursor-pointer"
                 >
                   Buy Now
-                </Link>
+                </button>
               </div>
             </div>
           </div>

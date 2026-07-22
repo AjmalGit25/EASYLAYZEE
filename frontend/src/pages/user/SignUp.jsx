@@ -13,12 +13,16 @@ function Signup() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const { syncGuestCart } = useUserAuth();
 
   const handleFormData = async () => {
+    setLoading(true);
+
     try {
       await api.post("/user/signup", { firstName, lastName, mobileNumber, email, password, confirmPassword });
       
@@ -27,6 +31,8 @@ function Signup() {
       setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
       setError(error.response?.data?.message || "Something went wrong in Signup!");
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -164,9 +170,11 @@ function Signup() {
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-lg text-white font-semibold text-sm bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 hover:opacity-90 transition-opacity duration-200 cursor-pointer shadow-md mt-1"
+                  disabled={loading}
+                  className={`w-full py-2.5 rounded-lg text-white font-semibold text-sm transition-opacity duration-200 cursor-pointer shadow-md mt-1
+                    ${loading ? "bg-linear-to-l from-indigo-600 via-purple-600 to-pink-500 opacity-80" : "bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 hover:opacity-90"}`}
                 >
-                  Create Account
+                  {loading ? "Creating Your Account..." : "Create Account"}
                 </button>
               </form>
 

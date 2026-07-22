@@ -20,10 +20,12 @@ import SignUp from './pages/user/SignUp.jsx';
 import Login from './pages/user/LogIn.jsx';
 import Account from './pages/user/Account.jsx';
 import Payment from './pages/user/Payment.jsx';
+import PaymentSuccess from './pages/user/PaymentSuccess.jsx';
 import Cart from './pages/user/Cart.jsx';
 import ProductDetails from './pages/user/ProductDetails.jsx';
 import Products from './pages/user/Products.jsx';
 import Checkout from './pages/user/Checkout.jsx';
+import OrderSummary from './pages/user/OrderSummary.jsx';
 
 // Admin Pages
 import AdminSignup from "./pages/admin/AdminSignup.jsx";
@@ -31,7 +33,7 @@ import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
 import AdminHome from './pages/admin/AdminHome.jsx';
 import AddProduct from "./pages/admin/AddProduct.jsx";
-import Orders from "./pages/admin/Orders.jsx";
+import AdminOrders from "./pages/admin/Orders.jsx";
 import AdminProducts from "./pages/admin/AdminProducts.jsx";
 
 // Common Pages
@@ -55,6 +57,8 @@ const router = createBrowserRouter([
       { path: "cart", element: <UserRoute element={<Cart />} /> },
       { path: "checkout", element: <UserRoute element={<Checkout />} /> },
       { path: "payment", element: <UserRoute element={<Payment />} /> },
+      { path: "order-summary", element: <OrderSummary /> },
+      { path: "payment-success", element: <PaymentSuccess /> },
 
       // Admin Routes
       { path: "admin/signup", element: <AdminSignup /> },
@@ -64,7 +68,7 @@ const router = createBrowserRouter([
       { path: "add-product", element: <AdminRoute element={<AddProduct />} /> },
       { path: "update-product", element: <AdminRoute element={<UpdateProduct />} /> },
       { path: "update-product/:id", element: <AdminRoute element={<UpdateProduct />} /> },
-      { path: "admin/orders", element: <AdminRoute element={<Orders />} /> },
+      { path: "admin/orders", element: <AdminRoute element={<AdminOrders />} /> },
       { path: "admin/products", element: <AdminRoute element={<AdminProducts />} /> },
 
 

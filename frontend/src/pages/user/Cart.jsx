@@ -1,14 +1,15 @@
 /* eslint-disable */
 import api from "../../services/api.js";
 import { RiDeleteBin5Fill } from "react-icons/ri";
+import { FiShoppingCart } from "react-icons/fi";
 import { GoHeartFill } from "react-icons/go";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { FiShoppingCart } from "react-icons/fi";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 export default function Cart() {
   const [loading, setLoading] = useState(true);         // Page load
+  const navigate = useNavigate();
 
   const [cart, setCart] = useState([]);
   const [cartLoading, setCartLoading] = useState(null);
@@ -21,7 +22,6 @@ export default function Cart() {
       const cartRes = await api.get("/cart");
       setCart(cartRes.data.cartData.items || []);
 
-      console.log("Cart items:", cartRes.data.cartData.items);
     } catch (error) {
       console.error("Error fetching cart:", error);
       setCart([]);
@@ -68,7 +68,7 @@ export default function Cart() {
         );
       }
 
-      await fetchCart();
+      setCart(response.data.cartData.items || []);
       toast.success(response.data.message || "Added to Cart");
     } catch (error) {
       console.error(error);
@@ -96,10 +96,19 @@ export default function Cart() {
 
   const subtotal = cart.reduce((sum, item) => sum + (item.productId?.price ?? 0) * item.quantity, 0);
 
+
+  const handleCartBuy = () => {
+    navigate("/checkout", {
+      state: {
+        mode: "cart"
+      }
+    });
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50">
 
-      <div className="px-4 md:px-8 py-6 pt-20">
+      <div className="px-4 mx-auto pt-20 max-w-7xl">
 
         {/* Page heading */}
         <h1 className="text-2xl md:text-3xl font-extrabold text-indigo-700 mb-6 tracking-tight">
@@ -125,7 +134,7 @@ export default function Cart() {
           <div className="flex flex-col lg:flex-row gap-6">
 
             {/* Cart Items */}
-            <div className="flex flex-col gap-4 lg:w-[68%]">
+            <div className="flex flex-col gap-4 flex-5">
               {cart.map((cartItem, index) => {
                 const wishlistIds = (wishlist.products ?? []).map(cartItem => cartItem._id);
                 const isWishlisted = wishlistIds.includes(cartItem.productId._id);
@@ -201,7 +210,7 @@ export default function Cart() {
             </div>
 
             {/* Summary Panel */}
-            <div className="lg:w-[32%] h-fit">
+            <div className="flex-3 h-fit">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4 sticky top-20">
                 <h2 className="text-lg font-bold text-gray-800">Order Summary</h2>
                 <div className="space-y-2 text-sm text-gray-500">
@@ -218,12 +227,12 @@ export default function Cart() {
                     <span className="text-indigo-600">₹{subtotal.toLocaleString("en-IN")}</span>
                   </div>
                 </div>
-                <Link
-                  to="/checkout"
-                  className="block text-center w-full py-3 rounded-xl text-white font-bold text-sm bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 hover:opacity-90 transition-opacity duration-200 shadow-md"
+                <button
+                  onClick={handleCartBuy}
+                  className="block text-center w-full py-3 rounded-xl text-white font-bold text-sm bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 hover:opacity-90 transition-opacity duration-200 shadow-md cursor-pointer"
                 >
                   Proceed to Buy
-                </Link>
+                </button>
               </div>
             </div>
 

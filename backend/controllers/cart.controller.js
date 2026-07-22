@@ -127,7 +127,7 @@ export const updateCart = async (req, res) => {
       cart.items[itemIndex].quantity = quantity;
 
       await cart.save();
-      const updatedCart = await Cart.findOne({ userId }).populate("items.productId", "title price images");
+      const updatedCart = await Cart.findOne({ userId }).populate("items.productId", "title price description images");
 
       return res.status(200).json({ message: "Cart updated successfully!", cartData: updatedCart });
     } else {
@@ -165,7 +165,7 @@ export const removeCart = async (req, res) => {
       cart.items.splice(itemIndex, 1);
       await cart.save();
 
-      const updatedCart = await Cart.findOne({ userId }).populate("items.productId", "title price images");
+      const updatedCart = await Cart.findOne({ userId }).populate("items.productId", "title price description images");
 
       return res.status(200).json({ message: "Product removed from cart successfully!", cartData: updatedCart });
     } else {
