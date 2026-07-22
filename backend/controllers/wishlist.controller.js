@@ -18,7 +18,6 @@ export const getWishlist = async (req, res) => {
       return res.status(404).json({ message: "Wishlist is empty!" });
     }
 
-    console.log("Wishlist fetched successfully!", wishlist);
     return res.status(200).json({ message: "Wishlist fetched succesffully!", wishlist });
 
   } catch (error) {

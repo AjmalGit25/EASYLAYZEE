@@ -13,8 +13,6 @@ export const createOrder = async (req, res) => {
       receipt: `receipt_${Date.now()}`,
     });
 
-    console.log("Razorpay order created:", order);
-
     return res.status(200).json({ success: true, order });
   } catch (error) {
     console.error("Razorpay order creation failed:", error);

@@ -5,8 +5,6 @@ import api from "../../services/api.js";
 import toast from "react-hot-toast";
 import { FiShield } from "react-icons/fi";
 
-
-
 export default function Payment() {
   const { user } = useUserAuth();
   const navigate = useNavigate();
@@ -59,8 +57,6 @@ export default function Payment() {
       const { data } = await api.post("/payment/create-order", { amount: subtotal });
       const order = data.order;
 
-      console.log("Order data: ", order);
-
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
@@ -101,8 +97,6 @@ export default function Payment() {
           },
         },
       };
-
-      console.log("Razorpay options: ", options);
 
       const rzp = new window.Razorpay(options);
 

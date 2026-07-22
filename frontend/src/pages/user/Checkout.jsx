@@ -49,7 +49,7 @@ export default function Checkout() {
       // Use the product and quantity from location.state (Sent by ProductDetails.jsx)
       console.log("Product to be checkout:", location.state?.product);
       console.log("Product quantity:", location.state?.quantity);
-      
+
       const fetchProduct = async (product) => {
         console.log("Fetching product for checkout:", product._id);
 
@@ -289,7 +289,10 @@ export default function Checkout() {
             <p className="text-sm text-slate-700">PhonePe UPI</p>
           </div>
 
-          <Link to={"/payment"} className="flex-2 flex items-center justify-between bg-green-700 text-white rounded-lg px-2 py-1.5">
+          <Link
+            to="/payment"
+            state={{ checkoutItems, subtotal }}
+            className="flex-2 flex items-center justify-between bg-green-700 text-white rounded-lg px-2 py-1.5">
             <div className="uppercase flex flex-col text-[12px]">
               <span>₹{subtotal.toLocaleString("en-IN")}</span>
               <span className="">Total</span>

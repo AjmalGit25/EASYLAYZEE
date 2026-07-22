@@ -35,8 +35,6 @@ export default function Home() {
     fetchProducts();
   }, []);
 
-  console.log("Lenght: ", products.length);
-
   if (!currentProduct) return (
     <div className="min-h-screen relative background overflow-hidden px-5 md:pt-20">
       <div className="min-h-screen flex items-center justify-center text-white text-xs md:text-lg font-medium">
