@@ -1,7 +1,7 @@
 
-# EASYLAYZEE
+# EasyLayzee
 
-EASYLAYZEE is a full-stack MERN e-commerce web application designed for browsing and purchasing snack products such as wafers and chips. The project includes separate user and admin experiences, making it suitable for both customers and store administrators.
+EasyLayzee is a full-stack MERN e-commerce web application designed for browsing and purchasing snack products such as wafers and chips. The project includes separate user and admin experiences, making it suitable for both customers and store administrators. The user experience allows customers to explore the product catalog, add items to their cart, and complete purchases securely. On the other hand, the admin experience provides store administrators with tools to manage inventory, process orders, and monitor sales performance. This project demonstrates proficiency in full-stack development using the MERN stack (MongoDB, Express.js, React.js, Node.js) and showcases the ability to create a functional e-commerce platform with distinct user roles.
 
 ## Description
 
